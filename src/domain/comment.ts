@@ -1,5 +1,9 @@
 import { Entity, text } from "./entity.js";
 import { User } from "./user.js";
+export type CommentSnapshot = {
+  comment: Comment;
+  replies: CommentSnapshot[];
+};
 export class Comment extends Entity {
   readonly text: string;
   private readonly _replies: Comment[] = [];
@@ -27,6 +31,20 @@ export class Comment extends Entity {
   }
   restoreReplies(replies: Comment[]): void {
     this._replies.splice(0, this._replies.length, ...replies);
+  }
+  captureState(): CommentSnapshot {
+    return {
+      comment: this,
+      replies: this._replies.map((reply) => reply.captureState()),
+    };
+  }
+  restoreState(state: CommentSnapshot): void {
+    this.restoreReplies(
+      state.replies.map((reply) => {
+        reply.comment.restoreState(reply);
+        return reply.comment;
+      }),
+    );
   }
 
   getParent(): Comment | null {

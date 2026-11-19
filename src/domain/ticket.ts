@@ -2,7 +2,7 @@ import { Entity, ensure, text } from "./entity.js";
 import { Project } from "./project.js";
 import { User } from "./user.js";
 import { Release } from "./release.js";
-import { Comment } from "./comment.js";
+import { Comment, type CommentSnapshot } from "./comment.js";
 import { Attachment, type AttachmentType } from "./attachment.js";
 export const statuses = [
   "OPEN",
@@ -39,7 +39,7 @@ export type TicketSnapshot = {
   revision: number;
   stepsToReproduce: string;
   attachments: Attachment[];
-  comments: Comment[];
+  comments: CommentSnapshot[];
 };
 
 export class Ticket extends Entity {
@@ -248,7 +248,7 @@ export class Ticket extends Entity {
       revision: this._revision,
       stepsToReproduce: this.stepsToReproduce,
       attachments: [...this._attachments],
-      comments: [...this._comments],
+      comments: this._comments.map((comment) => comment.captureState()),
     };
   }
   setUpdatedAt(value: string): void {
@@ -266,7 +266,14 @@ export class Ticket extends Entity {
     this._revision = state.revision;
     this.stepsToReproduce = state.stepsToReproduce;
     this._attachments.splice(0, this._attachments.length, ...state.attachments);
-    this._comments.splice(0, this._comments.length, ...state.comments);
+    this._comments.splice(
+      0,
+      this._comments.length,
+      ...state.comments.map((comment) => {
+        comment.comment.restoreState(comment);
+        return comment.comment;
+      }),
+    );
   }
 
   restoreStateForStorage(state: {

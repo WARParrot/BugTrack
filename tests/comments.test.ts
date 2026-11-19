@@ -34,6 +34,15 @@ test("комментарий, ответы и parent восстанавлива�
     assert.throws(() => f.service.addComment(t, f.tester, "  "), {
       statusCode: 400,
     });
+    f.db.exec(
+      "CREATE TRIGGER reject_comment_update BEFORE UPDATE ON entities WHEN NEW.kind='tickets' BEGIN SELECT RAISE(ABORT,'test'); END;",
+    );
+    assert.throws(
+      () => f.service.addComment(t, f.tester, "Откат", reply.getId()),
+    );
+    assert.equal(t.comments[0].replies.length, 1);
+    assert.equal(t.comments[0].replies[0], reply);
+    assert.equal(f.service.get(t.getId(), f.tester).comments[0].replies.length, 1);
   } finally {
     f.db.close();
   }

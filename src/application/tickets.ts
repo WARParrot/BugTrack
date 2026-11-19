@@ -197,6 +197,11 @@ export class TicketService {
     parentId?: string,
   ): Comment {
     ensure(
+      ticket.status !== "ARCHIVED",
+      "Архивный тикет неизменяем",
+      409,
+    );
+    ensure(
       ticket.project.members.some((m) => m.user.getId() === actor.getId()),
       "Нет доступа к обсуждению",
       403,

@@ -154,6 +154,13 @@ test("HTTP: роли, workflow, совместная работа, уведом�
     });
     await request("POST", ticket + "/take", developer.cookie, {});
     await request(
+      "PATCH",
+      `${root}/members/${developer.user.id}`,
+      admin,
+      { role: "TESTER" },
+      409,
+    );
+    await request(
       "DELETE",
       `${root}/members/${developer.user.id}`,
       admin,
@@ -239,6 +246,13 @@ test("HTTP: роли, workflow, совместная работа, уведом�
       ticket + "/comments",
       tester.cookie,
       { text: "После архива запрещено" },
+      409,
+    );
+    await request(
+      "POST",
+      ticket + "/comments",
+      tester.cookie,
+      { text: "Ответ после архива запрещен", parentId: comment.id },
       409,
     );
     await request("PUT", ticket + "/priority", admin, { priority: "LOW" }, 409);

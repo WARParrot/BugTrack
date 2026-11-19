@@ -54,6 +54,20 @@ export class ProjectService {
     this.projects.save(project);
   }
   changeMemberRole(project: Project, user: User, role: Role): void {
+    const member = project.members.find((item) => item.user.getId() === user.getId());
+    ensure(member, "Участник не найден", 404);
+    if (
+      this.tickets &&
+      member.getRole() === "DEVELOPER" &&
+      role !== "DEVELOPER"
+    ) {
+      const active = this.tickets.findByAssignee(user).some(
+        (ticket) =>
+          ticket.project.getId() === project.getId() &&
+          !(["CLOSED", "ARCHIVED"] as TicketStatus[]).includes(ticket.status),
+      );
+      ensure(!active, "Нельзя изменить роль исполнителя активного тикета", 409);
+    }
     project.changeMemberRole(user, role);
     this.projects.save(project);
   }
