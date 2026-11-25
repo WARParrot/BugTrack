@@ -2,7 +2,7 @@ namespace BugTrack.Models;
 
 public class User : Entity
 {
-    private User() { } // EF Core
+    private User() { }
 
     public User(string fullName, Email email, string passwordHash)
     {
@@ -18,7 +18,6 @@ public class User : Entity
     public bool IsAdmin { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    /// <summary>Not in the diagram: incremented on logout to invalidate issued session cookies.</summary>
     public int SessionVersion { get; private set; }
 
     public static User CreateAdmin(string fullName, Email email, string passwordHash)

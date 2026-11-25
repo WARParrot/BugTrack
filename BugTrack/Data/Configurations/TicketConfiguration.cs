@@ -16,7 +16,6 @@ public sealed class TicketConfiguration : EntityConfiguration<Ticket>
         b.Property(t => t.Priority).HasConversion<string>().HasMaxLength(16);
         b.Property(t => t.MergeRequestUrl).HasMaxLength(2048);
 
-        // Optimistic concurrency: UPDATE ... WHERE Id = @id AND Revision = @original.
         b.Property(t => t.Revision).IsConcurrencyToken();
 
         b.HasOne(t => t.Project).WithMany().HasForeignKey("ProjectId").IsRequired().OnDelete(DeleteBehavior.Restrict);
@@ -24,7 +23,6 @@ public sealed class TicketConfiguration : EntityConfiguration<Ticket>
         b.HasOne(t => t.Assignee).WithMany().HasForeignKey("AssigneeId").IsRequired(false).OnDelete(DeleteBehavior.Restrict);
         b.HasOne(t => t.Release).WithMany().HasForeignKey("ReleaseId").IsRequired(false).OnDelete(DeleteBehavior.Restrict);
 
-        // «value object» Deadline lives in the Tickets table (column DeadlineAt, NULL = no deadline).
         b.OwnsOne(t => t.Deadline, d => d.Property(x => x.DueAt).HasColumnName("DeadlineAt"));
     }
 }

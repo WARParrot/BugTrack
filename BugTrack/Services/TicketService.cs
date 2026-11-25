@@ -14,7 +14,6 @@ public sealed class TicketService : ITicketService
     private readonly IReleaseRepository _releases;
     private readonly INotificationService _notifications;
 
-    // Not in the diagram: used to resolve ids to entities and to make writes atomic.
     private readonly IProjectRepository _projects;
     private readonly IUserRepository _users;
     private readonly ITransactions _transactions;
@@ -74,8 +73,6 @@ public sealed class TicketService : ITicketService
         return (await _events.FindByTicketAsync(ticket, ct)).Select(e => e.ToDto()).ToList();
     }
 
-    // ---- workflow -------------------------------------------------------------------------------
-
     public async Task<TicketDto> AssignTicketAsync(Guid ticketId, Guid managerId, Guid developerId, CancellationToken ct = default)
     {
         var (ticket, manager) = await LoadAsync(ticketId, managerId, ct);
@@ -126,8 +123,6 @@ public sealed class TicketService : ITicketService
         return await PersistTransitionAsync(ticket, manager, TicketEventType.ARCHIVED, null, ct);
     }
 
-    // ---- manager-only properties --------------------------------------------------------------------
-
     public async Task<TicketDto> SetDeadlineAsync(Guid ticketId, Guid actorId, DateTimeOffset deadline, CancellationToken ct = default)
     {
         var (ticket, _) = await LoadManagedAsync(ticketId, actorId, ct);
@@ -153,8 +148,6 @@ public sealed class TicketService : ITicketService
         return ticket.ToDto();
     }
 
-    // ---- collaboration ----------------------------------------------------------------------------------
-
     public async Task<CommentDto> AddCommentAsync(
         Guid ticketId, Guid actorId, string text, Guid? parentCommentId, CancellationToken ct = default)
     {
@@ -175,9 +168,6 @@ public sealed class TicketService : ITicketService
         return attachment.ToDto();
     }
 
-    // ---- helpers ------------------------------------------------------------------------------------------
-
-    /// <summary>Saves the ticket, records the event and notifies the project — all or nothing.</summary>
     private async Task<TicketDto> PersistTransitionAsync(
         Ticket ticket, User actor, TicketEventType type, string? note, CancellationToken ct)
     {
@@ -203,7 +193,6 @@ public sealed class TicketService : ITicketService
         return project;
     }
 
-    /// <summary>Loads the ticket and the acting user; the actor must belong to the ticket's project.</summary>
     private async Task<(Ticket Ticket, User Actor)> LoadAsync(Guid ticketId, Guid actorId, CancellationToken ct)
     {
         var actor = await RequireUserAsync(actorId, ct);
@@ -215,7 +204,6 @@ public sealed class TicketService : ITicketService
         return (ticket, actor);
     }
 
-    /// <summary>Like <see cref="LoadAsync"/> but also requires PROJECT_MANAGER and a non-archived ticket.</summary>
     private async Task<(Ticket Ticket, User Actor)> LoadManagedAsync(Guid ticketId, Guid actorId, CancellationToken ct)
     {
         var (ticket, actor) = await LoadAsync(ticketId, actorId, ct);

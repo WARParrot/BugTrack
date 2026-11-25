@@ -6,7 +6,7 @@ public class Project : Entity
 {
     private readonly List<Membership> _members = new();
 
-    private Project() { } // EF Core
+    private Project() { }
 
     public Project(string name, string description, User creator)
     {
@@ -22,10 +22,8 @@ public class Project : Entity
     public string Description { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; }
 
-    /// <summary>Diagram: Project 1 — 0..1 SourceRepository 'repository'.</summary>
     public SourceRepository? Repository { get; private set; }
 
-    /// <summary>Diagram: Project 1 — 1..* Membership 'members' (<c>getMembers()</c>).</summary>
     public IReadOnlyCollection<Membership> Members => _members;
 
     public IReadOnlyList<Membership> GetMembersByRole(Role role) =>
@@ -67,10 +65,6 @@ public class Project : Entity
         member.ChangeRole(role);
     }
 
-    /// <summary>
-    /// Links the project to a source repository. An existing link is updated in place
-    /// (the project has at most one), which keeps persistence simple.
-    /// </summary>
     public void LinkRepository(SourceRepository repo)
     {
         ArgumentNullException.ThrowIfNull(repo);

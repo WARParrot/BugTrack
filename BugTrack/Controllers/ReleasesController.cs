@@ -16,7 +16,6 @@ public sealed class ReleasesController : ApiControllerBase
     public async Task<ActionResult<ReleasesResponse>> List(CancellationToken ct) =>
         new ReleasesResponse(await _releases.ListAsync(ct));
 
-    /// <summary>Administrators only.</summary>
     [HttpPost]
     public async Task<ActionResult<ReleaseResponse>> Create(CreateReleaseRequest request, CancellationToken ct)
     {

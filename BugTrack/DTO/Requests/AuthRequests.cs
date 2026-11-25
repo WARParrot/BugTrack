@@ -3,9 +3,6 @@ using BugTrack.Models;
 
 namespace BugTrack.DTO.Requests;
 
-// Request models: HTTP-facing input with declarative validation. Business rules live in the domain.
-// Enum / id properties are nullable + [Required] so that "missing" is distinguishable from the default value.
-
 public sealed record RegisterRequest
 {
     [Required, StringLength(100)] public string FullName { get; init; } = "";

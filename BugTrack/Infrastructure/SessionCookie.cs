@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace BugTrack.Infrastructure;
 
-/// <summary>Issues / clears the HttpOnly session cookie.</summary>
 public static class SessionCookie
 {
     public static readonly TimeSpan Lifetime = TimeSpan.FromHours(8);

@@ -52,7 +52,6 @@
 
                 const rows = projects.map((p) => {
                     const tr = document.createElement("tr");
-                    // textContent, not innerHTML: names and descriptions are user input.
                     for (const text of [
                         p.name,
                         p.description,

@@ -7,7 +7,7 @@ public class Ticket : Entity
     private readonly List<Comment> _comments = new();
     private readonly List<Attachment> _attachments = new();
 
-    private Ticket() { } // EF Core
+    private Ticket() { }
 
     public Ticket(
         Project project,
@@ -43,18 +43,11 @@ public class Ticket : Entity
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    /// <summary>
-    /// Not in the diagram: optimistic-concurrency token, bumped on every change
-    /// (including comment/attachment additions).
-    /// </summary>
     public int Revision { get; private set; }
 
-    /// <summary>All comments of the ticket, root comments and replies alike (flat).</summary>
     public IReadOnlyCollection<Comment> Comments => _comments;
 
     public IReadOnlyCollection<Attachment> Attachments => _attachments;
-
-    // ---- workflow ---------------------------------------------------------------------------
 
     public void Assign(User manager, User developer)
     {
@@ -140,8 +133,6 @@ public class Ticket : Entity
         Touch();
     }
 
-    // ---- editable properties ---------------------------------------------------------------
-
     public void SetRelease(Release release)
     {
         RequireNotArchived();
@@ -164,8 +155,6 @@ public class Ticket : Entity
         Touch();
     }
 
-    // ---- collaboration ----------------------------------------------------------------------
-
     public Comment AddComment(User author, string text)
     {
         RequireNotArchived();
@@ -176,7 +165,6 @@ public class Ticket : Entity
         return comment;
     }
 
-    /// <summary>Not in the diagram as such: reply to an existing comment of this ticket (at any depth).</summary>
     public Comment AddReply(Guid parentId, User author, string text)
     {
         RequireNotArchived();
@@ -198,8 +186,6 @@ public class Ticket : Entity
         Touch();
         return attachment;
     }
-
-    // ---- helpers ------------------------------------------------------------------------------
 
     private void Touch()
     {

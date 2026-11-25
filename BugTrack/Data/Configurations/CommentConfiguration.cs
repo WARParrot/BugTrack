@@ -11,7 +11,6 @@ public sealed class CommentConfiguration : EntityConfiguration<Comment>
         b.ToTable("Comments");
         b.Property(c => c.Text).IsRequired().HasMaxLength(5000);
 
-        // Every comment (root or reply) belongs to the ticket, so a ticket's whole thread loads in one query.
         b.HasOne<Ticket>().WithMany(t => t.Comments).HasForeignKey("TicketId").IsRequired().OnDelete(DeleteBehavior.Cascade);
         b.HasOne(c => c.Author).WithMany().HasForeignKey("AuthorId").IsRequired().OnDelete(DeleteBehavior.Restrict);
         b.HasOne(c => c.Parent).WithMany(c => c.Replies).HasForeignKey("ParentId").IsRequired(false).OnDelete(DeleteBehavior.Restrict);

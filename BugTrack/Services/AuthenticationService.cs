@@ -26,7 +26,7 @@ public sealed class AuthenticationService : IAuthenticationService
             DomainErrorKind.Conflict);
 
         var user = new User(fullName, address, _hasher.Hash(password));
-        await _users.SaveAsync(user, ct); // a concurrent duplicate is rejected by the unique index (→ Conflict)
+        await _users.SaveAsync(user, ct);
         return new AuthenticationResult(user.ToDto(), user.SessionVersion);
     }
 
@@ -35,7 +35,6 @@ public sealed class AuthenticationService : IAuthenticationService
     {
         var user = await _users.FindByEmailAsync(new Email(email), ct);
 
-        // Verify even for an unknown email so there is no fast path for probing accounts.
         var passwordOk = _hasher.Verify(password, user?.PasswordHash);
         if (user is null || !passwordOk)
             throw new DomainException(DomainErrorKind.Unauthenticated, "Неверный email или пароль");

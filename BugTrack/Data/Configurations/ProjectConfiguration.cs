@@ -11,6 +11,5 @@ public sealed class ProjectConfiguration : EntityConfiguration<Project>
         b.ToTable("Projects");
         b.Property(p => p.Name).IsRequired().HasMaxLength(150);
         b.Property(p => p.Description).IsRequired();
-        // Relationships to Membership / SourceRepository are configured on the dependent side.
     }
 }

@@ -11,7 +11,6 @@ public sealed class EfTransactions : ITransactions
 
     public async Task RunAsync(Func<Task> operation, CancellationToken ct = default)
     {
-        // Already inside a transaction: join it.
         if (_db.Database.CurrentTransaction is not null)
         {
             await operation();
@@ -20,6 +19,6 @@ public sealed class EfTransactions : ITransactions
 
         await using var transaction = await _db.Database.BeginTransactionAsync(ct);
         await operation();
-        await transaction.CommitAsync(ct); // an exception above disposes the transaction → rollback
+        await transaction.CommitAsync(ct);
     }
 }

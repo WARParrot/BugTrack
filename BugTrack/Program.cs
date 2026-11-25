@@ -7,7 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 var production = builder.Environment.IsProduction();
 
-// Same startup rule as the original: production must bootstrap an administrator.
 if (production && (string.IsNullOrWhiteSpace(config["Admin:Email"]) || string.IsNullOrWhiteSpace(config["Admin:Password"])))
     throw new InvalidOperationException("Admin:Email и Admin:Password обязательны в production");
 
@@ -18,13 +17,11 @@ builder.Services.AddBugTrackServices();
 builder.Services.AddApiControllers();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-// The session cookie is encrypted with Data Protection keys; persist them so sessions survive restarts.
 builder.Services.AddDataProtection()
     .SetApplicationName("BugTrack")
     .PersistKeysToFileSystem(new DirectoryInfo(config["DataProtection:KeysPath"] ?? ".data/keys"));
 builder.Services.AddCookieSession(production);
 
-// For a browser frontend served from another origin (e.g. a dev server). Cookies need AllowCredentials.
 var allowedOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 if (allowedOrigins.Length > 0)
     builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>

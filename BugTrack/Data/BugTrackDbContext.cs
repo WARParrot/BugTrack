@@ -19,6 +19,5 @@ public sealed class BugTrackDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BugTrackDbContext).Assembly);
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
-        // SQLite returns DateTime with Kind=Unspecified; force UTC so JSON gets the 'Z' suffix.
         configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
 }

@@ -6,10 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BugTrack.Repositories;
 
-/// <summary>
-/// Base for all repositories. <see cref="Query"/> must return entities with everything the
-/// application needs already included, so callers never hit lazy-loading gaps.
-/// </summary>
 public abstract class EfRepository<T> : IRepository<T> where T : Entity
 {
     private const int SqliteConstraintError = 19;
@@ -26,7 +22,6 @@ public abstract class EfRepository<T> : IRepository<T> where T : Entity
     public virtual async Task<IReadOnlyList<T>> FindAllAsync(CancellationToken ct = default) =>
         await Query.ToListAsync(ct);
 
-    /// <summary>Inserts a new entity or flushes the changes of a tracked one.</summary>
     public async Task SaveAsync(T entity, CancellationToken ct = default)
     {
         if (Db.Entry(entity).State == EntityState.Detached)

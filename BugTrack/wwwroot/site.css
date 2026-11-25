@@ -5,7 +5,6 @@
 * { box-sizing: border-box; }
 body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg); }
 
-/* page frame */
 .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .brand { font-weight: 600; font-size: 16px; color: var(--text); text-decoration: none; }
 .layout { display: flex; min-height: calc(100vh - 53px); }
@@ -14,7 +13,6 @@ body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, s
 .content { flex: 1; padding: 32px 24px; }
 .muted { color: var(--muted); }
 
-/* card + form */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; }
 .narrow { max-width: 380px; margin: 24px auto; }
 label { display: block; margin: 14px 0 4px; font-weight: 500; }
@@ -23,22 +21,16 @@ input { width: 100%; padding: 8px 10px; font: inherit; border: 1px solid var(--b
 input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 .actions { display: flex; gap: 8px; margin-top: 20px; }
 
-/* buttons */
 .btn { display: inline-block; padding: 8px 14px; font: inherit; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); text-decoration: none; cursor: pointer; }
 .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-/* error banner (toggled with the hidden attribute) */
 [hidden] { display: none !important; }
 .alert { margin-bottom: 16px; padding: 10px 12px; border-radius: 6px; color: var(--danger); background: #fef3f2; border: 1px solid #fecdca; }
 
-/* table */
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 500; }
 
-/* auth pages (login / register): fixed 1440x900 layout from the mockup
-   topbar 1440x56 pad 16 · left panel 360x844 pad 20 #f6f7f9 ·
-   right panel 1080 wide, pad 80px 120px (hugs to 456px with the card) */
 .auth .topbar { height: 56px; padding: 16px; border-bottom: 1px solid var(--border); }
 .auth .layout { min-height: calc(100vh - 56px); background: #fafafa; }
 .auth .sidebar { width: 360px; padding: 20px; background: #f6f7f9; border-right: 1px solid var(--border); }
@@ -46,7 +38,6 @@ th { color: var(--muted); font-weight: 500; }
 .auth .sidebar p { margin: 0; font-size: 13px; max-width: 240px; }
 .auth .content { align-self: flex-start; padding: 80px 120px; }
 
-/* login card: fixed 400px wide, hug height (296px), 20px padding, 16px gap */
 .login-card { width: 400px; display: flex; flex-direction: column; gap: 16px; padding: 20px; }
 .login-card label { margin: 0 0 8px; font-size: 13px; line-height: 20px; font-weight: 500; }
 .login-card input { height: 36px; padding: 0 12px; }

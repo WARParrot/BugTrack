@@ -23,7 +23,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>MVC, JSON and the uniform <c>{ "error": ... }</c> shape for binding/validation failures.</summary>
     public static IServiceCollection AddApiControllers(this IServiceCollection services)
     {
         services
@@ -37,17 +36,14 @@ public static class ServiceCollectionExtensions
             })
             .AddJsonOptions(options =>
             {
-                // Enums travel as their names (PROJECT_MANAGER, READY_FOR_REVIEW, ...), never as numbers.
                 options.JsonSerializerOptions.Converters.Add(
                     new System.Text.Json.Serialization.JsonStringEnumConverter(allowIntegerValues: false));
-                options.JsonSerializerOptions.MaxDepth = 1024; // reply chains can be deep
+                options.JsonSerializerOptions.MaxDepth = 1024;
             })
             .ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
                 {
-                    // Name the first offending field ("Некорректное поле: name") rather than echoing
-                    // framework-generated English text, so all error messages stay consistent.
                     var field = context.ModelState
                         .Where(entry => entry.Value is { Errors.Count: > 0 })
                         .Select(entry => entry.Key.TrimStart('$', '.'))
@@ -59,10 +55,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>
-    /// Cookie-based session: encrypted + signed auth cookie (ASP.NET Core Data Protection),
-    /// HttpOnly, SameSite=Strict, 8 hours. Unauthenticated calls get 401/403 JSON instead of redirects.
-    /// </summary>
     public static IServiceCollection AddCookieSession(this IServiceCollection services, bool production)
     {
         services
@@ -77,11 +69,9 @@ public static class ServiceCollectionExtensions
                 options.ExpireTimeSpan = SessionCookie.Lifetime;
                 options.SlidingExpiration = false;
 
-                // Unauthenticated calls get a JSON 401; the static pages in wwwroot send the person to login.html.
                 options.Events.OnRedirectToLogin = context => WriteErrorAsync(context.Response, 401, "Требуется вход");
                 options.Events.OnRedirectToAccessDenied = context => WriteErrorAsync(context.Response, 403, "Недостаточно прав");
 
-                // A logout bumps the user's session version, which invalidates every cookie issued before it.
                 options.Events.OnValidatePrincipal = async context =>
                 {
                     var auth = context.HttpContext.RequestServices.GetRequiredService<AuthService>();

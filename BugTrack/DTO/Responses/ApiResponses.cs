@@ -2,8 +2,6 @@ using BugTrack.DTO;
 
 namespace BugTrack.DTO.Responses;
 
-// Response envelopes: { "user": {...} }, { "tickets": [...] }, ... (same wire shape as the original API).
-
 public sealed record ErrorResponse(string Error);
 
 public sealed record HealthResponse(bool Ok);

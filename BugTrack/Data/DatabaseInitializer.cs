@@ -2,11 +2,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BugTrack.Data;
 
-/// <summary>
-/// Prepares the database on start. Once migrations exist in the Migrations folder
-/// (<c>dotnet ef migrations add InitialCreate</c>) they are applied; until then the schema
-/// is created directly from the model.
-/// </summary>
 public sealed class DatabaseInitializer : IDatabaseInitializer
 {
     private readonly BugTrackDbContext _db;

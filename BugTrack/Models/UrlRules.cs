@@ -4,7 +4,6 @@ internal static class UrlRules
 {
     public const int MaxLength = 2048;
 
-    /// <summary>http(s) URL with a host and without credentials.</summary>
     public static bool IsPlainHttp(string url) =>
         url.Length <= MaxLength
         && Uri.TryCreate(url, UriKind.Absolute, out var uri)
@@ -12,7 +11,6 @@ internal static class UrlRules
         && uri.Host.Length > 0
         && uri.UserInfo.Length == 0;
 
-    /// <summary>https URL without credentials, or ssh URL without a password.</summary>
     public static bool IsRepositoryUrl(string url)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Host.Length == 0) return false;

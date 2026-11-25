@@ -12,7 +12,6 @@ public sealed class ProjectService : IProjectService
     private readonly IUserRepository _users;
     private readonly ITicketRepository _tickets;
 
-    // ITicketRepository is not in the diagram: it protects assignees of active tickets from removal.
     public ProjectService(IProjectRepository projects, IUserRepository users, ITicketRepository tickets)
     {
         _projects = projects;
@@ -86,8 +85,6 @@ public sealed class ProjectService : IProjectService
         await _projects.SaveAsync(project, ct);
         return project.ToDto();
     }
-
-    // ---- helpers ------------------------------------------------------------------------------
 
     private async Task<User> RequireUserAsync(Guid userId, CancellationToken ct) =>
         Guard.Found(await _users.FindByIdAsync(userId, ct), "Требуется вход", DomainErrorKind.Unauthenticated);

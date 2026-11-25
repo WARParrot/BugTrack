@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 
 namespace BugTrack.Models;
 
-/// <summary>Diagram: «value object» Email — value : String.</summary>
 public sealed partial class Email : IEquatable<Email>
 {
     public Email(string value)
@@ -12,7 +11,6 @@ public sealed partial class Email : IEquatable<Email>
         Value = normalized;
     }
 
-    /// <summary>Lower-cased, trimmed address (diagram: <c>getValue()</c>).</summary>
     public string Value { get; }
 
     public bool Equals(Email? other) => other is not null && Value == other.Value;

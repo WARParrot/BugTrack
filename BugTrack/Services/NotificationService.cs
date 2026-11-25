@@ -11,7 +11,6 @@ public sealed class NotificationService : INotificationService
     private readonly IUserRepository _users;
     private readonly IProjectRepository _projects;
 
-    // Besides INotificationRepository (diagram) this needs users/projects to resolve ids to entities.
     public NotificationService(
         INotificationRepository notifications, IUserRepository users, IProjectRepository projects)
     {

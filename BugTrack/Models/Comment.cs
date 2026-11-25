@@ -4,7 +4,7 @@ public class Comment : Entity
 {
     private readonly List<Comment> _replies = new();
 
-    private Comment() { } // EF Core
+    private Comment() { }
 
     public Comment(User author, string text)
     {
@@ -17,15 +17,10 @@ public class Comment : Entity
     public string Text { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; }
 
-    /// <summary>Diagram: Comment 0..1 — 0..* Comment ('parent' / 'replies').</summary>
     public Comment? Parent { get; private set; }
 
     public IReadOnlyCollection<Comment> Replies => _replies;
 
-    /// <remarks>
-    /// Prefer <see cref="Ticket.AddReply"/>: it also registers the reply with the ticket,
-    /// which is what persists it.
-    /// </remarks>
     public Comment AddReply(User author, string text)
     {
         var reply = new Comment(author, text) { Parent = this };

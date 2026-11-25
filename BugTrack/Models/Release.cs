@@ -2,7 +2,7 @@ namespace BugTrack.Models;
 
 public class Release : Entity
 {
-    private Release() { } // EF Core
+    private Release() { }
 
     public Release(string version, DateOnly releasedAt)
     {

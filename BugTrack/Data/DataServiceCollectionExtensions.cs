@@ -6,7 +6,6 @@ namespace BugTrack.Data;
 
 public static class DataServiceCollectionExtensions
 {
-    /// <summary>Registers the DbContext (SQLite), repositories, transactions and the database initializer.</summary>
     public static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
     {
         var databasePath = Path.GetFullPath(configuration["Database:Path"] ?? ".data/bugtrack.sqlite");

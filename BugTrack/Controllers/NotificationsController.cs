@@ -11,7 +11,6 @@ public sealed class NotificationsController : ApiControllerBase
 
     public NotificationsController(INotificationService notifications) => _notifications = notifications;
 
-    /// <param name="unreadOnly">Optional filter; defaults to all notifications, newest first.</param>
     [HttpGet]
     public async Task<ActionResult<NotificationsResponse>> List([FromQuery] bool unreadOnly, CancellationToken ct) =>
         new NotificationsResponse(await _notifications.ListAsync(CurrentUserId, unreadOnly, ct));

@@ -12,8 +12,6 @@ public sealed class TicketsController : ApiControllerBase
 
     public TicketsController(ITicketService tickets) => _tickets = tickets;
 
-    // ---- project-scoped ---------------------------------------------------------------------------
-
     [HttpGet("projects/{projectId}/tickets")]
     public async Task<ActionResult<TicketsResponse>> List(Guid projectId, CancellationToken ct) =>
         new TicketsResponse(await _tickets.ListAsync(projectId, CurrentUserId, ct));
@@ -27,8 +25,6 @@ public sealed class TicketsController : ApiControllerBase
         return StatusCode(StatusCodes.Status201Created, new TicketResponse(ticket));
     }
 
-    // ---- read -----------------------------------------------------------------------------------------
-
     [HttpGet("tickets/{id}")]
     public async Task<ActionResult<TicketResponse>> Get(Guid id, CancellationToken ct) =>
         new TicketResponse(await _tickets.GetAsync(id, CurrentUserId, ct));
@@ -36,8 +32,6 @@ public sealed class TicketsController : ApiControllerBase
     [HttpGet("tickets/{id}/events")]
     public async Task<ActionResult<TicketEventsResponse>> History(Guid id, CancellationToken ct) =>
         new TicketEventsResponse(await _tickets.HistoryAsync(id, CurrentUserId, ct));
-
-    // ---- workflow ---------------------------------------------------------------------------------------
 
     [HttpPost("tickets/{id}/assign")]
     public async Task<ActionResult<TicketResponse>> Assign(Guid id, AssignTicketRequest request, CancellationToken ct) =>
@@ -67,8 +61,6 @@ public sealed class TicketsController : ApiControllerBase
     public async Task<ActionResult<TicketResponse>> Archive(Guid id, CancellationToken ct) =>
         new TicketResponse(await _tickets.ArchiveAsync(id, CurrentUserId, ct));
 
-    // ---- manager-only properties ---------------------------------------------------------------------------
-
     [HttpPut("tickets/{id}/release")]
     public async Task<ActionResult<TicketResponse>> SetRelease(Guid id, SetReleaseRequest request, CancellationToken ct) =>
         new TicketResponse(await _tickets.SetReleaseAsync(id, CurrentUserId, request.Version, ct));
@@ -80,8 +72,6 @@ public sealed class TicketsController : ApiControllerBase
     [HttpPut("tickets/{id}/deadline")]
     public async Task<ActionResult<TicketResponse>> SetDeadline(Guid id, SetDeadlineRequest request, CancellationToken ct) =>
         new TicketResponse(await _tickets.SetDeadlineAsync(id, CurrentUserId, request.Deadline!.Value, ct));
-
-    // ---- collaboration ----------------------------------------------------------------------------------------
 
     [HttpPost("tickets/{id}/comments")]
     public async Task<ActionResult<CommentResponse>> AddComment(Guid id, AddCommentRequest request, CancellationToken ct)

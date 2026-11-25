@@ -4,7 +4,7 @@ namespace BugTrack.Models;
 
 public class Membership : Entity
 {
-    private Membership() { } // EF Core
+    private Membership() { }
 
     public Membership(User user, Project project, Role role)
     {

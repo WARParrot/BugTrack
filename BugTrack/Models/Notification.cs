@@ -2,7 +2,7 @@ namespace BugTrack.Models;
 
 public class Notification : Entity
 {
-    private Notification() { } // EF Core
+    private Notification() { }
 
     public Notification(User recipient, string message)
     {

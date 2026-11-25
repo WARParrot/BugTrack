@@ -3,16 +3,11 @@ using BugTrack.Services.Interfaces;
 
 namespace BugTrack.Services;
 
-/// <summary>
-/// PBKDF2-HMAC-SHA512 with a random 16-byte salt. Stored as
-/// <c>pbkdf2-sha512$iterations$salt$key</c> (Base64), so the cost can be raised later
-/// without invalidating existing hashes.
-/// </summary>
 public sealed class Pbkdf2PasswordHasher : IPasswordHasher
 {
     private const string Prefix = "pbkdf2-sha512";
     private const int Iterations = 210_000;
-    private const int MaxAcceptedIterations = 5_000_000; // guards against absurd values in corrupted data
+    private const int MaxAcceptedIterations = 5_000_000;
     private const int SaltSize = 16;
     private const int KeySize = 32;
 

@@ -2,7 +2,7 @@ namespace BugTrack.Models;
 
 public class SourceRepository : Entity
 {
-    private SourceRepository() { } // EF Core
+    private SourceRepository() { }
 
     public SourceRepository(string name, string url)
     {
@@ -14,7 +14,6 @@ public class SourceRepository : Entity
     public string Name { get; private set; } = null!;
     public string Url { get; private set; } = null!;
 
-    /// <summary>Copies already-validated values from another instance (used by <see cref="Project.LinkRepository"/>).</summary>
     internal void CopyFrom(SourceRepository other)
     {
         Name = other.Name;

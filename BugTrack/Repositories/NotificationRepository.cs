@@ -11,7 +11,6 @@ public sealed class NotificationRepository : EfRepository<Notification>, INotifi
 
     protected override IQueryable<Notification> Query => Db.Notifications.Include(nameof(Notification.Recipient));
 
-    /// <summary>Newest first.</summary>
     public async Task<IReadOnlyList<Notification>> FindByRecipientAsync(
         User user, bool unreadOnly, CancellationToken ct = default)
     {

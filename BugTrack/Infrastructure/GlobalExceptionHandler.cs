@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace BugTrack.Infrastructure;
 
-/// <summary>Turns exceptions into <c>{ "error": "..." }</c> responses with the right status code.</summary>
 public sealed class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;

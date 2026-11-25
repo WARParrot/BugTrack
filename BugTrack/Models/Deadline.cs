@@ -1,9 +1,8 @@
 namespace BugTrack.Models;
 
-/// <summary>Diagram: «value object» Deadline — dueAt : LocalDateTime (stored and exposed as UTC).</summary>
 public sealed class Deadline
 {
-    private Deadline() { } // EF Core
+    private Deadline() { }
 
     public Deadline(DateTime dueAt)
     {

@@ -4,7 +4,7 @@ namespace BugTrack.Models;
 
 public class Attachment : Entity
 {
-    private Attachment() { } // EF Core
+    private Attachment() { }
 
     public Attachment(User uploader, AttachmentType type, string url)
     {
@@ -16,7 +16,6 @@ public class Attachment : Entity
         UploadedAt = DateTime.UtcNow;
     }
 
-    /// <summary>Diagram association role: 'uploadedBy'.</summary>
     public User UploadedBy { get; private set; } = null!;
     public AttachmentType Type { get; private set; }
     public string Url { get; private set; } = null!;

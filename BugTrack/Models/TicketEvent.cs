@@ -4,7 +4,7 @@ namespace BugTrack.Models;
 
 public class TicketEvent : Entity
 {
-    private TicketEvent() { } // EF Core
+    private TicketEvent() { }
 
     public TicketEvent(Ticket ticket, User actor, TicketEventType type, string? note)
     {

@@ -10,6 +10,5 @@ public interface INotificationService
 
     Task<IReadOnlyList<NotificationDto>> ListAsync(Guid userId, bool unreadOnly = false, CancellationToken ct = default);
 
-    /// <summary>Marks a notification as read; only its recipient can do that (others get NotFound).</summary>
     Task MarkAsReadAsync(Guid notificationId, Guid userId, CancellationToken ct = default);
 }

@@ -4,7 +4,6 @@ using BugTrack.Models.Enums;
 
 namespace BugTrack.DTO;
 
-/// <summary>Entity → DTO projections. Entities never leave the Application layer.</summary>
 public static class Mappers
 {
     public static UserDto ToDto(this User u) =>
@@ -50,7 +49,6 @@ public static class Mappers
             t.MergeRequestUrl,
             t.CreatedAt,
             t.UpdatedAt,
-            // Comments are stored flat; the API shows root comments with replies nested.
             t.Comments.Where(c => c.Parent is null).OrderBy(c => c.CreatedAt).Select(c => c.ToDto()).ToList(),
             t.Attachments.OrderBy(a => a.UploadedAt).Select(a => a.ToDto()).ToList());
 
