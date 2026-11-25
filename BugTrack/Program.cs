@@ -45,6 +45,8 @@ await using (var scope = app.Services.CreateAsyncScope())
 
 app.UseExceptionHandler(_ => { });
 if (allowedOrigins.Length > 0) app.UseCors();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

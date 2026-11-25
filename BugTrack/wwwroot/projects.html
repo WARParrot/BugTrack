@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Проекты · BugTrack</title>
+    <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">BugTrack</a>
+        <button type="button" id="logout" class="btn btn-secondary">Выйти</button>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>Проекты</h2>
+            <p class="muted">Проекты, в которых вы участвуете.</p>
+        </aside>
+        <main class="content">
+            <div class="card">
+                <div class="alert" role="alert" hidden></div>
+                <p class="muted" id="status">Загрузка…</p>
+                <table hidden>
+                    <thead>
+                        <tr><th>Название</th><th>Описание</th><th>Участников</th><th>Создан</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { api, ApiError, logout, requireUser, showError } from "/app.js";
+
+        document.getElementById("logout").addEventListener("click", logout);
+
+        const alertEl = document.querySelector(".alert");
+        const status = document.getElementById("status");
+        const table = document.querySelector("table");
+
+        async function load() {
+            if (!(await requireUser())) return;
+
+            try {
+                const { projects } = await api("/projects");
+                if (projects.length === 0) {
+                    status.textContent = "Вы пока не участвуете ни в одном проекте.";
+                    return;
+                }
+
+                const rows = projects.map((p) => {
+                    const tr = document.createElement("tr");
+                    // textContent, not innerHTML: names and descriptions are user input.
+                    for (const text of [
+                        p.name,
+                        p.description,
+                        p.members.length,
+                        new Date(p.createdAt).toLocaleDateString("ru-RU"),
+                    ]) {
+                        const td = document.createElement("td");
+                        td.textContent = text;
+                        tr.append(td);
+                    }
+                    return tr;
+                });
+                table.querySelector("tbody").replaceChildren(...rows);
+                table.hidden = false;
+                status.hidden = true;
+            } catch (e) {
+                if (e instanceof ApiError && e.status === 401) return location.replace("/login.html");
+                status.hidden = true;
+                showError(alertEl, e instanceof ApiError ? e.message : "Не удалось загрузить проекты");
+            }
+        }
+
+        load();
+    </script>
+</body>
+</html>

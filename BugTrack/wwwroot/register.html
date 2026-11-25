@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Регистрация · BugTrack</title>
+    <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">BugTrack</a>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>Новый аккаунт</h2>
+            <p class="muted">Пароль — не короче 8 символов.</p>
+        </aside>
+        <main class="content">
+            <form class="card narrow">
+                <div class="alert" role="alert" hidden></div>
+
+                <label for="fullName">Имя и фамилия</label>
+                <input id="fullName" name="fullName" required maxlength="100" autocomplete="name" autofocus>
+
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required maxlength="254"
+                       placeholder="user@company.ru" autocomplete="email">
+
+                <label for="password">Пароль</label>
+                <input id="password" name="password" type="password" required minlength="8" maxlength="128"
+                       autocomplete="new-password">
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Создать аккаунт</button>
+                    <a class="btn btn-secondary" href="/login.html">Уже есть аккаунт</a>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script type="module">
+        import { api, bindForm, redirectIfSignedIn } from "/app.js";
+
+        redirectIfSignedIn();
+
+        bindForm(document.querySelector("form"), async ({ fullName, email, password }) => {
+            await api("/auth/register", { method: "POST", body: { fullName, email, password } });
+            location.replace("/projects.html");
+        });
+    </script>
+</body>
+</html>

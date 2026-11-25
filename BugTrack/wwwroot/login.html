@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Вход · BugTrack</title>
+    <link rel="stylesheet" href="/site.css">
+</head>
+<body class="auth">
+    <header class="topbar">
+        <a class="brand" href="/">BugTrack</a>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>Доступ к проектам команды</h2>
+            <p class="muted">Войдите под корпоративной почтой, зарегистрированной в BugTrack.</p>
+        </aside>
+        <main class="content">
+            <form class="card login-card">
+                <div class="alert" role="alert" hidden></div>
+
+                <div>
+                    <label for="email">Email <span class="req">*</span></label>
+                    <input id="email" name="email" type="email" required maxlength="254"
+                           placeholder="user@company.ru" autocomplete="email" autofocus>
+                </div>
+
+                <div>
+                    <label for="password">Пароль <span class="req">*</span></label>
+                    <input id="password" name="password" type="password" required maxlength="128"
+                           placeholder="Пароль пользователя" autocomplete="current-password">
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                    <a class="btn" href="/register.html">Зарегистрироваться</a>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script type="module">
+        import { api, bindForm, redirectIfSignedIn } from "/app.js";
+
+        redirectIfSignedIn();
+
+        bindForm(document.querySelector("form"), async ({ email, password }) => {
+            await api("/auth/login", { method: "POST", body: { email, password } });
+            location.replace("/projects.html");
+        });
+    </script>
+</body>
+</html>

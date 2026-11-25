@@ -12,11 +12,9 @@ public static class ServiceCollectionExtensions
 {
     public const string CookieName = "bugtrack_session";
 
-    /// <summary>Registers the business services and the password hasher.</summary>
     public static IServiceCollection AddBugTrackServices(this IServiceCollection services)
     {
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
-        // Fully qualified: ASP.NET Core also has a Microsoft.AspNetCore.Authentication.AuthenticationService.
         services.AddScoped<AuthService, BugTrack.Services.AuthenticationService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<ITicketService, TicketService>();
@@ -79,6 +77,7 @@ public static class ServiceCollectionExtensions
                 options.ExpireTimeSpan = SessionCookie.Lifetime;
                 options.SlidingExpiration = false;
 
+                // Unauthenticated calls get a JSON 401; the static pages in wwwroot send the person to login.html.
                 options.Events.OnRedirectToLogin = context => WriteErrorAsync(context.Response, 401, "Требуется вход");
                 options.Events.OnRedirectToAccessDenied = context => WriteErrorAsync(context.Response, 403, "Недостаточно прав");
 
