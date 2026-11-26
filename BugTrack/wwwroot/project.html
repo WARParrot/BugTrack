@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Обзор проекта · BugTrack</title>
+    <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <a class="icon-btn" href="/projects.html" aria-label="К проектам">&#8592;</a>
+            <a class="brand" href="/projects.html">BugTrack</a>
+            <span class="proj-pill" hidden></span>
+            <nav class="proj-nav">
+                <a data-project-tab="/project.html" class="active">Обзор</a>
+                <a data-project-tab="/queue.html">Очередь</a>
+                <a data-project-tab="/participants.html">Участники</a>
+                <a data-project-tab="/archive.html">Архив</a>
+            </nav>
+        </div>
+        <div class="topbar-right">
+            <span class="muted">Уведомления</span>
+            <span class="role-chip badge" hidden></span>
+            <button type="button" class="avatar" aria-label="Профиль"
+                    onclick="location.assign('/profile.html')"></button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>Очередь</h2>
+            <div id="queueFilters"></div>
+            <p class="side-count" id="activeHeading" hidden></p>
+            <div id="queueNav"></div>
+        </aside>
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <h1 id="projTitle">Загрузка…</h1>
+                    <p class="muted" id="repoUrl"></p>
+                </div>
+                <button type="button" id="manageRepoBtn" class="btn" hidden>Управлять репозиторием</button>
+            </div>
+
+            <div class="alert" role="alert" hidden id="alert"></div>
+
+            <div class="status-grid">
+                <div class="card status-card"><span class="st-name s-OPEN">OPEN</span><span class="st-count" id="c-open"></span></div>
+                <div class="card status-card"><span class="st-name s-IN_PROGRESS">IN PROGRESS</span><span class="st-count" id="c-inprogress"></span></div>
+                <div class="card status-card"><span class="st-name s-READY_FOR_REVIEW">READY FOR REVIEW</span><span class="st-count" id="c-review"></span></div>
+                <div class="card status-card"><span class="st-name s-FIXED">FIXED</span><span class="st-count" id="c-fixed"></span></div>
+                <div class="card status-card"><span class="st-name s-CLOSED">CLOSED</span><span class="st-count" id="c-closed"></span></div>
+            </div>
+
+            <p class="deadline-line" id="deadlineLine" hidden></p>
+        </main>
+    </div>
+
+    <script type="module">
+        import { api, ApiError, initProjectPage, showError } from "/app.js";
+
+        const STATUS_IDS = {
+            OPEN: "c-open",
+            IN_PROGRESS: "c-inprogress",
+            READY_FOR_REVIEW: "c-review",
+            FIXED: "c-fixed",
+            CLOSED: "c-closed",
+        };
+        const isActive = (t) => t.status !== "CLOSED" && t.status !== "ARCHIVED";
+
+        function filterRow(label, count, query, id) {
+            const a = document.createElement("a");
+            a.className = "side-row";
+            a.href = `/queue.html?id=${id}${query}`;
+            const name = document.createElement("span");
+            name.textContent = label;
+            const num = document.createElement("span");
+            num.className = "side-num";
+            num.textContent = String(count);
+            a.append(name, num);
+            return a;
+        }
+
+        const ctx = await initProjectPage();
+        if (ctx) {
+            const { me, project, role } = ctx;
+            document.getElementById("projTitle").textContent = `Обзор проекта ${project.name}`;
+            document.getElementById("repoUrl").textContent = project.repository?.url ?? "";
+            document.getElementById("manageRepoBtn").hidden = role !== "PROJECT_MANAGER";
+
+            const alertEl = document.getElementById("alert");
+            try {
+                const { tickets } = await api(`/projects/${project.id}/tickets`);
+
+                const countBy = (status) => tickets.filter((t) => t.status === status).length;
+                for (const [status, cellId] of Object.entries(STATUS_IDS)) {
+                    document.getElementById(cellId).textContent = String(countBy(status));
+                }
+
+                const active = tickets.filter(isActive);
+                const nearest = active
+                    .filter((t) => t.deadline)
+                    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))[0];
+
+                const filters = document.getElementById("queueFilters");
+                filters.append(
+                    filterRow("Назначенные мне", active.filter((t) => t.assignee?.id === me.id).length, "&assigned=1", project.id),
+                    filterRow("Ожидают проверки", countBy("READY_FOR_REVIEW"), "&status=READY_FOR_REVIEW", project.id),
+                    filterRow("Все активные", active.length, "", project.id),
+                    filterRow("Пересмотренные", countBy("REOPENED"), "&status=REOPENED", project.id),
+                    filterRow("Исправленные", tickets.filter((t) => t.mergeRequestUrl).length, "&fixed=1", project.id),
+                    filterRow("Закрытые", countBy("CLOSED"), "&status=CLOSED", project.id),
+                    filterRow("Архив", countBy("ARCHIVED"), "&status=ARCHIVED", project.id),
+                );
+
+                const activeHeading = document.getElementById("activeHeading");
+                activeHeading.textContent = `Активные тикеты: ${active.length}`;
+                activeHeading.hidden = false;
+
+                if (nearest) {
+                    const ticketNo = nearest.id.split("-")[0].toUpperCase();
+                    const card = document.createElement("div");
+                    card.className = "queue-item";
+
+                    const top = document.createElement("p");
+                    top.className = "queue-top";
+                    const code = document.createElement("span");
+                    code.className = "t-code";
+                    code.textContent = ticketNo;
+                    const st = document.createElement("span");
+                    st.className = `t-status s-${nearest.status}`;
+                    st.textContent = nearest.status;
+                    const pr = document.createElement("span");
+                    pr.className = `t-prio p-${nearest.priority}`;
+                    pr.textContent = nearest.priority;
+                    top.append(code, st, pr);
+
+                    const title = document.createElement("p");
+                    title.className = "t-title";
+                    title.textContent = nearest.title;
+                    const meta = document.createElement("p");
+                    meta.className = "t-meta";
+                    meta.textContent = `${nearest.assignee?.fullName ?? "Не назначен"} · ${new Date(nearest.deadline).toLocaleDateString("ru-RU")}`;
+                    card.append(top, title, meta);
+                    document.getElementById("queueNav").append(card);
+
+                    const deadlineLine = document.getElementById("deadlineLine");
+                    deadlineLine.textContent = `Ближайший дедлайн: ${ticketNo} · ${new Date(nearest.deadline).toLocaleDateString("ru-RU")}`;
+                    deadlineLine.hidden = false;
+                }
+            } catch (e) {
+                showError(alertEl, e instanceof ApiError ? e.message : "Не удалось загрузить данные проекта");
+            }
+        }
+    </script>
+</body>
+</html>
+

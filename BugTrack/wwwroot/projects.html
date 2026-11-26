@@ -9,21 +9,35 @@
 <body>
     <header class="topbar">
         <a class="brand" href="/">BugTrack</a>
-        <button type="button" id="logout" class="btn btn-secondary">Выйти</button>
+        <button type="button" id="profileBtn" class="avatar" aria-label="Профиль"
+                onclick="location.assign('/profile.html')"></button>
     </header>
 
     <div class="layout">
         <aside class="sidebar">
-            <h2>Проекты</h2>
-            <p class="muted">Проекты, в которых вы участвуете.</p>
+            <h2>Разделы</h2>
+            <a class="side-link" href="/projects.html">Все проекты</a>
         </aside>
         <main class="content">
+            <div class="page-head">
+                <h1>Проекты</h1>
+                <button type="button" id="createProjectBtn" class="btn btn-primary"
+                        onclick="location.assign('/new-project.html')">+ Новый проект</button>
+            </div>
+
             <div class="card">
                 <div class="alert" role="alert" hidden></div>
                 <p class="muted" id="status">Загрузка…</p>
                 <table hidden>
                     <thead>
-                        <tr><th>Название</th><th>Описание</th><th>Участников</th><th>Создан</th></tr>
+                        <tr>
+                            <th>Проект</th>
+                            <th>Роль</th>
+                            <th>Открытые</th>
+                            <th>На проверке</th>
+                            <th>Репозиторий</th>
+                            <th>Действия</th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -32,16 +46,86 @@
     </div>
 
     <script type="module">
-        import { api, ApiError, logout, requireUser, showError } from "/app.js";
-
-        document.getElementById("logout").addEventListener("click", logout);
+        import { api, ApiError, requireUser, showError } from "/app.js";
 
         const alertEl = document.querySelector(".alert");
         const status = document.getElementById("status");
         const table = document.querySelector("table");
+        const tbody = table.querySelector("tbody");
+        const profileBtn = document.getElementById("profileBtn");
+
+        const ROLE_LABELS = {
+            PROJECT_MANAGER: "Менеджер",
+            DEVELOPER: "Разработчик",
+            TESTER: "Тестировщик",
+            ADMIN: "Администратор",
+        };
+        const OPEN_STATUSES = ["OPEN", "IN_PROGRESS", "REOPENED"];
+        const REVIEW_STATUS = "READY_FOR_REVIEW";
+
+        function initials(fullName) {
+            const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
+            return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+        }
+
+        function cell(content) {
+            const td = document.createElement("td");
+            if (typeof content === "string") td.textContent = content;
+            else td.append(content);
+            return td;
+        }
+
+        async function ticketCounts(projectId) {
+            try {
+                const { tickets } = await api(`/projects/${projectId}/tickets`);
+                return {
+                    open: tickets.filter((t) => OPEN_STATUSES.includes(t.status)).length,
+                    review: tickets.filter((t) => t.status === REVIEW_STATUS).length,
+                };
+            } catch {
+                return null;
+            }
+        }
+
+        async function buildRow(project, me) {
+            const tr = document.createElement("tr");
+
+            const title = document.createElement("div");
+            const name = document.createElement("p");
+            name.className = "proj-name";
+            name.textContent = project.name;
+            const description = document.createElement("p");
+            description.className = "proj-desc";
+            description.textContent = project.description;
+            title.append(name, description);
+            tr.append(cell(title));
+
+            const membership = project.members.find((m) => m.user.id === me.id);
+            const badge = document.createElement("span");
+            badge.className = "badge";
+            badge.textContent = ROLE_LABELS[membership?.role] ?? "—";
+            tr.append(cell(badge));
+
+            const counts = await ticketCounts(project.id);
+            tr.append(cell(counts ? String(counts.open) : "—"));
+            tr.append(cell(counts ? String(counts.review) : "—"));
+            tr.append(cell(project.repository?.url ?? "—"));
+
+            const open = document.createElement("button");
+            open.type = "button";
+            open.className = "btn btn-primary";
+            open.textContent = "Открыть";
+            open.addEventListener("click", () => location.assign(`/project.html?id=${project.id}`));
+            tr.append(cell(open));
+
+            return tr;
+        }
 
         async function load() {
-            if (!(await requireUser())) return;
+            const me = await requireUser();
+            if (!me) return;
+
+            profileBtn.textContent = initials(me.fullName);
 
             try {
                 const { projects } = await api("/projects");
@@ -50,21 +134,8 @@
                     return;
                 }
 
-                const rows = projects.map((p) => {
-                    const tr = document.createElement("tr");
-                    for (const text of [
-                        p.name,
-                        p.description,
-                        p.members.length,
-                        new Date(p.createdAt).toLocaleDateString("ru-RU"),
-                    ]) {
-                        const td = document.createElement("td");
-                        td.textContent = text;
-                        tr.append(td);
-                    }
-                    return tr;
-                });
-                table.querySelector("tbody").replaceChildren(...rows);
+                const rows = await Promise.all(projects.map((p) => buildRow(p, me)));
+                tbody.replaceChildren(...rows);
                 table.hidden = false;
                 status.hidden = true;
             } catch (e) {

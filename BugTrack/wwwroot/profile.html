@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Профиль · BugTrack</title>
+    <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">BugTrack</a>
+        <button type="button" id="profileBtn" class="avatar" aria-label="Профиль"></button>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>Разделы</h2>
+            <a class="side-link" href="/projects.html">Все проекты</a>
+        </aside>
+        <main class="content">
+            <div class="page-head">
+                <h1>Профиль</h1>
+            </div>
+            <div class="card">
+                <p class="muted" id="status">Загрузка…</p>
+                <p id="name" hidden></p>
+                <p id="email" hidden></p>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { requireUser } from "/app.js";
+
+        const me = await requireUser();
+        if (me) {
+            const initials = me.fullName.trim().split(/\s+/).filter(Boolean)
+                .slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+            document.getElementById("profileBtn").textContent = initials;
+            const name = document.getElementById("name");
+            const email = document.getElementById("email");
+            name.textContent = me.fullName;
+            email.textContent = me.email;
+            name.hidden = false;
+            email.hidden = false;
+            document.getElementById("status").hidden = true;
+        }
+    </script>
+</body>
+</html>
